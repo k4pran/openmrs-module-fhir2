@@ -42,6 +42,7 @@ import org.openmrs.module.fhir2.api.FhirGlobalPropertyService;
 import org.openmrs.module.fhir2.api.annotations.R4Provider;
 import org.openmrs.module.fhir2.api.spi.ModuleLifecycleListener;
 import org.openmrs.module.fhir2.narrative.OpenmrsThymeleafNarrativeGenerator;
+import org.openmrs.module.fhir2.providers.r4.EpisodeOfCareFhirResourceProvider;
 import org.openmrs.module.fhir2.web.authentication.RequireAuthenticationInterceptor;
 import org.openmrs.module.fhir2.web.util.DisableCacheInterceptor;
 import org.openmrs.module.fhir2.web.util.NarrativeUtils;
@@ -62,6 +63,9 @@ public class FhirRestServlet extends RestfulServer implements ModuleLifecycleLis
 	
 	private static final List<String> DEFAULT_NARRATIVE_FILES = Arrays.asList(FhirConstants.OPENMRS_NARRATIVES_PROPERTY_FILE,
 	    FhirConstants.HAPI_NARRATIVES_PROPERTY_FILE);
+	
+	@Autowired
+	private EpisodeOfCareFhirResourceProvider dao;
 	
 	@Autowired
 	@Qualifier("adminService")
