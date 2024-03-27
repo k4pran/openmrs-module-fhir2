@@ -20,6 +20,8 @@ import lombok.AccessLevel;
 import lombok.Setter;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.EpisodeOfCare;
+import org.hl7.fhir.r4.model.Extension;
+import org.hl7.fhir.r4.model.IntegerType;
 import org.hl7.fhir.r4.model.Period;
 import org.openmrs.PatientProgram;
 import org.openmrs.Program;
@@ -60,16 +62,16 @@ public class EpisodeOfCareTranslatorImpl implements EpisodeOfCareTranslator {
 		notNull(episodeOfCare, "The EpisodeOfCare object should not be null");
 		return this.toOpenmrsType(new PatientProgram(), episodeOfCare);
 	}
-	
+
 	@Override
 	public PatientProgram toOpenmrsType(@Nonnull PatientProgram patientProgram, @Nonnull EpisodeOfCare episodeOfCare) {
 		notNull(patientProgram, "The existing Openmrs PatientProgram object should not be null");
 		notNull(episodeOfCare, "The EpisodeOfCare object should not be null");
-		
+
 		if (episodeOfCare.hasId()) {
 			patientProgram.setUuid(episodeOfCare.getId());
 		}
-		
+
 		if (episodeOfCare.hasPeriod()) {
 			Period period = episodeOfCare.getPeriod();
 			if (period.hasStart()) {
@@ -79,10 +81,10 @@ public class EpisodeOfCareTranslatorImpl implements EpisodeOfCareTranslator {
 				patientProgram.setDateCompleted(period.getEnd());
 			}
 		}
-		
+
 		patientProgram.setPatient(patientReferenceTranslator.toOpenmrsType(episodeOfCare.getPatient()));
 		patientProgram.setProgram(getOpenmrsProgram(episodeOfCare));
-		
+
 		return patientProgram;
 	}
 	
@@ -105,7 +107,15 @@ public class EpisodeOfCareTranslatorImpl implements EpisodeOfCareTranslator {
 		}
 		
 		Program program = new Program();
-		program.setUuid(episodeOfCare.getId());
+		for (Extension extension : episodeOfCare.getExtension()) {
+			if (extension.getUrl().equalsIgnoreCase(url)) {
+				Integer value = ((IntegerType) extension.getValue()).getValue();
+				if (value != null) {
+					program.setId(value);
+				}
+			}
+		}
+		
 		program.setConcept(conceptTranslator.toOpenmrsType(type.get(0)));
 		
 		return program;
